@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+{% block title %}Performance Prediction - EduInsight{% endblock %}
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-6 text-gray-800">AI-Powered Performance Prediction</h1>
+
+    <!-- Current Prediction -->
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+        <h2 class="text-2xl font-semibold mb-4 text-indigo-600">Your Predicted Performance</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Predicted Grade -->
+            <div class="text-center p-4 bg-indigo-50 rounded-lg">
+                <div class="text-4xl font-bold text-indigo-700">{{ prediction.predicted_grade }}%</div>
+                <div class="text-gray-600 mt-2">Predicted Grade</div>
+            </div>
+
+            <!-- Confidence Level -->
+            <div class="text-center p-4 bg-green-50 rounded-lg">
+                <div class="text-3xl font-semibold
+                    {% if prediction.confidence == 'High' %}text-green-600
+                    {% elif prediction.confidence == 'Medium' %}text-yellow-600
+                    {% else %}text-red-600{% endif %}">
+                    {{ prediction.confidence }}
+                </div>
+                <div class="text-gray-600 mt-2">Confidence Level</div>
+            </div>
+
+            <!-- Performance Trend -->
+            <div class="text-center p-4 bg-blue-50 rounded-lg">
+                <div class="text-3xl font-semibold
+                    {% if prediction.trend == 'Improving' %}text-green-600
+                    {% elif prediction.trend == 'Stable' %}text-blue-600
+                    {% else %}text-orange-600{% endif %}">
+                    {{ prediction.trend }}
+                </div>
+                <div class="text-gray-600 mt-2">Performance Trend</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Student Metrics -->
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+        <h2 class="text-2xl font-semibold mb-4 text-gray-800">Current Performance Metrics</h2>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="p-3 bg-gray-50 rounded">
+                <div class="text-sm text-gray-600">Attendance Rate</div>
+                <div class="text-xl font-semibold">{{ student_data.attendance_rate|floatformat:1 }}%</div>
+            </div>
+            <div class="p-3 bg-gray-50 rounded">
+                <div class="text-sm text-gray-600">Test Average</div>
+                <div class="text-xl font-semibold">{{ student_data.test_average|floatformat:1 }}%</div>
+            </div>
+            <div class="p-3 bg-gray-50 rounded">
+                <div class="text-sm text-gray-600">Assignments</div>
+                <div class="text-xl font-semibold">{{ student_data.assignments_completed }}%</div>
+            </div>
+            <div class="p-3 bg-gray-50 rounded">
+                <div class="text-sm text-gray-600">Participation</div>
+                <div class="text-xl font-semibold">{{ student_data.participation_score }}%</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Improvement Strategies -->
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+        <h2 class="text-2xl font-semibold mb-4 text-gray-800">Personalized Improvement Strategies</h2>
+
+        {% if strategies.priority_areas %}
+        <div class="mb-4">
+            <span class="text-sm text-gray-600">Focus Areas:</span>
+            {% for area in strategies.priority_areas %}
+            <span class="inline-block bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm ml-2">{{ area|title }}</span>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="space-y-3">
+            {% for strategy in strategies.strategies %}
+            <div class="flex items-start p-3 bg-gray-50 rounded-lg">
+                <svg class="w-6 h-6 text-green-500 mr-3 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <span class="text-gray-700">{{ strategy }}</span>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% if strategies.estimated_improvement %}
+        <div class="mt-4 p-4 bg-green-50 rounded-lg">
+            <div class="text-green-800">
+                <span class="font-semibold">Potential Improvement:</span>
+                Up to {{ strategies.estimated_improvement }}% grade increase
+            </div>
+            <div class="text-green-700 text-sm mt-1">
+                Timeline: {{ strategies.timeline }}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Historical Predictions -->
+    {% if recent_predictions %}
+    <div class="bg-white rounded-lg shadow-lg p-6">
+        <h2 class="text-2xl font-semibold mb-4 text-gray-800">Prediction History</h2>
+
+        <div class="overflow-x-auto">
+            <table class="w-full table-auto">
+                <thead>
+                    <tr class="bg-gray-100">
+                        <th class="px-4 py-2 text-left">Date</th>
+                        <th class="px-4 py-2 text-left">Predicted Grade</th>
+                        <th class="px-4 py-2 text-left">Confidence</th>
+                        <th class="px-4 py-2 text-left">Trend</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pred in recent_predictions %}
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="px-4 py-2">{{ pred.prediction_date|date:"Y-m-d" }}</td>
+                        <td class="px-4 py-2 font-semibold">{{ pred.predicted_grade }}%</td>
+                        <td class="px-4 py-2">
+                            <span class="px-2 py-1 rounded text-sm
+                                {% if pred.confidence == 'High' %}bg-green-100 text-green-800
+                                {% elif pred.confidence == 'Medium' %}bg-yellow-100 text-yellow-800
+                                {% else %}bg-red-100 text-red-800{% endif %}">
+                                {{ pred.confidence }}
+                            </span>
+                        </td>
+                        <td class="px-4 py-2">{{ pred.trend }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,137 @@
+{% extends 'teacher_base.html' %}
+{% block title %}Student Feedback Form - EduInsight{% endblock %}
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-6 text-gray-800">Comprehensive Student Feedback Form</h1>
+
+    <form method="POST" class="bg-white rounded-lg shadow-lg p-8">
+        {% csrf_token %}
+
+        <!-- Student Selection -->
+        <div class="mb-6">
+            <h2 class="text-xl font-semibold mb-4 text-gray-700">Student Information</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Select Student *</label>
+                    <select name="student_id" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500">
+                        <option value="">-- Select Student --</option>
+                        {% for student in students %}
+                        <option value="{{ student.id }}">{{ student.first_name }} {{ student.last_name }} - {{ student.email }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Feedback Type *</label>
+                    <select name="feedback_type" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500">
+                        <option value="academic">Academic Performance</option>
+                        <option value="behavioral">Behavioral</option>
+                        <option value="career">Career Guidance</option>
+                        <option value="general">General</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Student Contact Details -->
+        <div class="mb-6">
+            <h2 class="text-xl font-semibold mb-4 text-gray-700">Student Contact Details</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Student Phone Number</label>
+                    <input type="tel" name="student_phone" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500" placeholder="+1234567890">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Student Address</label>
+                    <textarea name="student_address" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500" placeholder="Full address including city, state, ZIP"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Parent/Guardian Contact Details -->
+        <div class="mb-6">
+            <h2 class="text-xl font-semibold mb-4 text-gray-700">Parent/Guardian Contact Details</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Parent/Guardian Name</label>
+                    <input type="text" name="parent_name" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500" placeholder="Full name">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Parent Phone Number</label>
+                    <input type="tel" name="parent_phone" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500" placeholder="+1234567890">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Parent Email</label>
+                    <input type="email" name="parent_email" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500" placeholder="parent@example.com">
+                </div>
+            </div>
+        </div>
+
+        <!-- Teacher Contact Details -->
+        <div class="mb-6">
+            <h2 class="text-xl font-semibold mb-4 text-gray-700">Teacher Contact Details</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Your Contact Number</label>
+                    <input type="tel" name="teacher_phone" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500" placeholder="+1234567890">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Subject/Course</label>
+                    <input type="text" name="subject" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500" placeholder="Mathematics, Science, etc.">
+                </div>
+            </div>
+        </div>
+
+        <!-- Feedback Content -->
+        <div class="mb-6">
+            <h2 class="text-xl font-semibold mb-4 text-gray-700">Feedback Details</h2>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Detailed Feedback *</label>
+            <textarea name="comment" required rows="6" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500" placeholder="Provide detailed feedback about the student's performance, behavior, areas of improvement, strengths, etc."></textarea>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="flex justify-between items-center">
+            <button type="submit" class="bg-indigo-600 text-white px-8 py-3 rounded-lg hover:bg-indigo-700 transition-colors">
+                Submit Feedback
+            </button>
+            <a href="{% url 'teacher_dashboard' %}" class="text-gray-600 hover:text-gray-800">Cancel</a>
+        </div>
+    </form>
+
+    <!-- Recent Feedback -->
+    {% if recent_feedback %}
+    <div class="mt-8 bg-white rounded-lg shadow-lg p-6">
+        <h2 class="text-xl font-semibold mb-4 text-gray-800">Recent Feedback Submitted</h2>
+        <div class="space-y-3">
+            {% for feedback in recent_feedback %}
+            <div class="border-l-4 border-indigo-500 pl-4 py-2">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <span class="font-semibold">{{ feedback.student.first_name }} {{ feedback.student.last_name }}</span>
+                        <span class="ml-2 px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">{{ feedback.get_feedback_type_display }}</span>
+                    </div>
+                    <span class="text-sm text-gray-500">{{ feedback.created_at|timesince }} ago</span>
+                </div>
+                <p class="text-gray-600 mt-1 text-sm">{{ feedback.comment|truncatewords:20 }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Success/Error Messages -->
+    {% if messages %}
+    <div class="mt-4">
+        {% for message in messages %}
+        <div class="p-4 rounded-lg {% if message.tags == 'success' %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

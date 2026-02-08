@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-md mx-auto bg-white p-6 rounded-lg shadow-md">
+    <h2 class="text-2xl font-bold mb-4 text-center"> Login</h2>
+    {% if errors %}
+        <div class="bg-red-100 text-red-700 p-2 mb-4 rounded">
+            {% for field, error in errors.items %}
+                <p>{{ error }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-4">
+            <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+            <input type="email" name="email" id="email" class="mt-1 p-2 w-full border rounded" required>
+        </div>
+        <div class="mb-4">
+            <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+            <input type="password" name="password" id="password" class="mt-1 p-2 w-full border rounded" required>
+        </div>
+        <button type="submit" class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">Login</button>
+    </form>
+    <p class="mt-4 text-center">
+        Don't have an account? <a href="{% url 'register' %}" class="text-blue-500 hover:underline">Register here</a>
+    </p>
+</div>
+{% endblock %}

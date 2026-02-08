@@ -1,0 +1,26 @@
+{% extends 'admin1/base1.html' %}
+
+{% block title %}Answered Users{% endblock %}
+
+{% block content %}
+<canvas id="analyticsChart"></canvas>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    new Chart(document.getElementById('analyticsChart'), {
+        type: 'bar',
+        data: {
+            labels: {{ chart_data.labels|safe }},
+            datasets: [{
+                label: 'Average Score per Category',
+                data: {{ chart_data.data|safe }},
+                backgroundColor: ['#4CAF50', '#2196F3', '#FF9800'],
+                borderColor: ['#388E3C', '#1976D2', '#F57C00'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: { y: { beginAtZero: true, max: 5 } }
+        }
+    });
+</script>
+{% endblock %}

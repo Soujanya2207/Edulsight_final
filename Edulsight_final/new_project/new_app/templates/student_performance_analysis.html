@@ -1,0 +1,215 @@
+{% extends 'teacher_base.html' %}
+{% block title %}Student Performance Analysis - EduInsight{% endblock %}
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-6 text-gray-800">Performance Analysis: {{ student.first_name }} {{ student.last_name }}</h1>
+
+    <!-- Performance Overview Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="text-sm text-gray-600">Predicted Grade</div>
+            <div class="text-3xl font-bold text-indigo-600">{{ prediction.predicted_grade|floatformat:1 }}%</div>
+            <div class="text-sm text-{{ prediction.trend|lower }}-600">{{ prediction.trend }}</div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="text-sm text-gray-600">Attendance Rate</div>
+            <div class="text-3xl font-bold text-green-600">{{ attendance_rate|floatformat:0 }}%</div>
+            <div class="text-xs text-gray-500 mt-1">{{ present_days }}/{{ total_days }} days</div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="text-sm text-gray-600">Average Test Score</div>
+            <div class="text-3xl font-bold text-purple-600">{{ test_average|floatformat:1 }}</div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="text-sm text-gray-600">Total Tests</div>
+            <div class="text-3xl font-bold text-orange-600">{{ total_tests }}</div>
+        </div>
+    </div>
+
+    <!-- Test Scores Trend Chart -->
+    <div class="bg-white rounded-lg shadow p-6 mb-8">
+        <h2 class="text-xl font-semibold mb-4">Test Scores Trend Over Time</h2>
+        <canvas id="testChart" height="100"></canvas>
+    </div>
+
+    <!-- Two Column Layout -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <!-- Attendance Pattern -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-xl font-semibold mb-4">Attendance Pattern</h2>
+            <canvas id="attendanceChart" height="150"></canvas>
+        </div>
+
+        <!-- Test Score Distribution -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-xl font-semibold mb-4">Test Performance Summary</h2>
+            <div class="space-y-4">
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600">Average Score:</span>
+                    <span class="text-2xl font-bold text-indigo-600">{{ test_average|floatformat:1 }}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600">Total Tests:</span>
+                    <span class="text-xl font-semibold text-gray-800">{{ total_tests }}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600">Attendance Rate:</span>
+                    <span class="text-xl font-semibold text-green-600">{{ attendance_rate|floatformat:1 }}%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Test Scores Table -->
+    <div class="bg-white rounded-lg shadow p-6 mb-8">
+        <h2 class="text-xl font-semibold mb-4">Recent Test Scores</h2>
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead>
+                    <tr class="bg-gray-100">
+                        <th class="px-4 py-2 text-left">Date</th>
+                        <th class="px-4 py-2 text-left">Score</th>
+                        <th class="px-4 py-2 text-left">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for test in test_scores %}
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="px-4 py-2">{{ test.test_date|date:"Y-m-d" }}</td>
+                        <td class="px-4 py-2">
+                            <span class="text-2xl font-semibold
+                                {% if test.score >= 80 %}text-green-600
+                                {% elif test.score >= 60 %}text-yellow-600
+                                {% else %}text-red-600{% endif %}">
+                                {{ test.score }}
+                            </span>
+                        </td>
+                        <td class="px-4 py-2">
+                            <span class="px-2 py-1 rounded text-sm
+                                {% if test.score >= 80 %}bg-green-100 text-green-800
+                                {% elif test.score >= 60 %}bg-yellow-100 text-yellow-800
+                                {% else %}bg-red-100 text-red-800{% endif %}">
+                                {% if test.score >= 80 %}Excellent
+                                {% elif test.score >= 60 %}Good
+                                {% else %}Needs Improvement{% endif %}
+                            </span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3" class="px-4 py-2 text-center text-gray-500">No test scores recorded yet</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Attendance Records Table -->
+    <div class="bg-white rounded-lg shadow p-6 mb-8">
+        <h2 class="text-xl font-semibold mb-4">Attendance Records</h2>
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead>
+                    <tr class="bg-gray-100">
+                        <th class="px-4 py-2 text-left">Date</th>
+                        <th class="px-4 py-2 text-left">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for attendance in attendance_data|slice:":20" %}
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="px-4 py-2">{{ attendance.date|date:"Y-m-d" }}</td>
+                        <td class="px-4 py-2">
+                            <span class="px-3 py-1 rounded-full text-sm font-semibold
+                                {% if attendance.status == 'Present' %}bg-green-100 text-green-800
+                                {% else %}bg-red-100 text-red-800{% endif %}">
+                                {{ attendance.status }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="2" class="px-4 py-2 text-center text-gray-500">No attendance records yet</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex gap-4">
+        <a href="{% url 'manage_tests' student.id %}" class="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700">
+            Add Test Score
+        </a>
+        <a href="{% url 'manage_attendance' student.id %}" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700">
+            Mark Attendance
+        </a>
+        <a href="{% url 'teacher_feedback_form' %}" class="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700">
+            Provide Feedback
+        </a>
+        <a href="{% url 'teacher_dashboard' %}" class="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700">
+            Back to Dashboard
+        </a>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Test Scores Trend Chart
+    const testData = {{ test_chart_data|safe }};
+    new Chart(document.getElementById('testChart'), {
+        type: 'line',
+        data: testData,
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: {
+                        stepSize: 10
+                    }
+                }
+            }
+        }
+    });
+
+    // Attendance Chart
+    const attendanceData = {{ attendance_chart_data|safe }};
+    new Chart(document.getElementById('attendanceChart'), {
+        type: 'bar',
+        data: attendanceData,
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 1,
+                    ticks: {
+                        callback: function(value) {
+                            return value === 1 ? 'Present' : 'Absent';
+                        }
+                    }
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

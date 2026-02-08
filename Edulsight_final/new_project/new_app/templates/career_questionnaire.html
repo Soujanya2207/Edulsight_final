@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Career Questionnaire - Edulsight{% endblock %}
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h2 class="text-3xl font-bold text-gray-900 text-center mb-8 animate-slide-up">Career Questionnaire</h2>
+    
+    {% if messages %}
+        <div class="bg-red-100 text-red-700 p-4 rounded-xl mb-6 max-w-md mx-auto animate-fade-in">
+            {% for message in messages %}
+                <p>{{ message }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% if no_questions %}
+        <div class="bg-white p-6 rounded-xl shadow-lg text-center max-w-md mx-auto animate-fade-in">
+            <p class="text-lg text-gray-600 mb-4">You've answered all questions! View your career recommendations or retake the questionnaire.</p>
+            <div class="space-x-4">
+                <a href="{% url 'career_results' %}" class="inline-block bg-indigo-600 text-white px-6 py-2 rounded-full hover:bg-indigo-700 transition duration-300">View Results</a>
+                <form method="post" action="{% url 'career_questionnaire' %}" class="inline-block">
+                    {% csrf_token %}
+                    <input type="hidden" name="retake" value="1">
+                    <button type="submit" class="bg-gray-600 text-white px-6 py-2 rounded-full hover:bg-gray-700 transition duration-300">Retake Questionnaire</button>
+                </form>
+            </div>
+        </div>
+    {% elif question %}
+        <div class="bg-white bg-opacity-90 backdrop-blur-md p-6 rounded-xl shadow-xl max-w-lg mx-auto animate-scale-in">
+            <h3 class="text-xl font-semibold text-gray-900 mb-4">{{ question.text }}</h3>
+            <form method="POST" action="{% url 'career_questionnaire' %}">
+                {% csrf_token %}
+                <input type="hidden" name="question_id" value="{{ question.id }}">
+                <div class="space-y-4">
+                    {% for option in options %}
+                        <label class="flex items-center space-x-2">
+                            <input type="radio" name="score" value="{{ option.value }}" required class="form-radio text-indigo-600">
+                            <span class="text-gray-700">{{ option.text }}</span>
+                        </label>
+                    {% endfor %}
+                </div>
+                <div class="mt-6 text-center">
+                    <button type="submit" class="bg-indigo-600 text-white px-6 py-2 rounded-full hover:bg-indigo-700 transition duration-300">Submit Answer</button>
+                </div>
+            </form>
+        </div>
+    {% else %}
+        <div class="bg-white p-6 rounded-xl shadow-lg text-center max-w-md mx-auto animate-fade-in">
+            <p class="text-lg text-gray-600 mb-4">No questions available. Please contact an administrator.</p>
+            <a href="{% url 'student_dashboard' %}" class="inline-block bg-indigo-600 text-white px-6 py-2 rounded-full hover:bg-indigo-700 transition duration-300">Back to Dashboard</a>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+    .animate-scale-in { animation: scaleIn 0.5s ease-out forwards; }
+    .animate-slide-up { animation: slideUp 0.8s ease-out forwards; }
+    .animate-fade-in { animation: fadeIn 1s ease-out forwards; }
+    @keyframes scaleIn {
+        from { transform: scale(0.95); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+    }
+    @keyframes slideUp {
+        from { transform: translateY(20px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+</style>
+{% endblock %}

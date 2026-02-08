@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% block title %}Notifications - EduInsight{% endblock %}
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-6 text-gray-800">Notifications</h1>
+
+    {% if notifications %}
+    <div class="space-y-4">
+        {% for notification in notifications %}
+        <div class="bg-white rounded-lg shadow-lg p-6 {% if not notification.is_read %}border-l-4 border-indigo-500{% endif %}">
+            <div class="flex justify-between items-start">
+                <div class="flex-1">
+                    <div class="flex items-center gap-3 mb-2">
+                        <!-- Icon based on notification type -->
+                        {% if notification.notification_type == 'performance' %}
+                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                        </svg>
+                        {% elif notification.notification_type == 'attendance' %}
+                        <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        {% elif notification.notification_type == 'career' %}
+                        <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                        </svg>
+                        {% elif notification.notification_type == 'test' %}
+                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        {% else %}
+                        <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        {% endif %}
+
+                        <h3 class="text-lg font-semibold text-gray-800">{{ notification.title }}</h3>
+
+                        <!-- Priority badge -->
+                        {% if notification.priority == 'high' %}
+                        <span class="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">High Priority</span>
+                        {% elif notification.priority == 'medium' %}
+                        <span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">Medium</span>
+                        {% else %}
+                        <span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">Low</span>
+                        {% endif %}
+
+                        {% if not notification.is_read %}
+                        <span class="px-2 py-1 bg-indigo-100 text-indigo-800 text-xs rounded-full">New</span>
+                        {% endif %}
+                    </div>
+
+                    <p class="text-gray-700 mb-2">{{ notification.message }}</p>
+
+                    <div class="flex items-center gap-4 text-sm text-gray-500">
+                        <span>{{ notification.created_at|timesince }} ago</span>
+                        <span class="text-gray-400">•</span>
+                        <span>{{ notification.get_notification_type_display }}</span>
+                    </div>
+                </div>
+
+                <button onclick="markAsRead({{ notification.id }})" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="bg-white rounded-lg shadow-lg p-12 text-center">
+        <svg class="w-16 h-16 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-1.414 0l-3.172-3.172a1 1 0 00-1.414 0L5.879 13.121A1 1 0 015.172 13H3"></path>
+        </svg>
+        <h3 class="text-xl font-semibold text-gray-800 mb-2">No notifications yet</h3>
+        <p class="text-gray-600">You'll receive notifications about your performance, career recommendations, and important updates here.</p>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function markAsRead(notificationId) {
+    fetch(`/notification/${notificationId}/read/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            location.reload();
+        }
+    });
+}
+</script>
+{% endblock %}

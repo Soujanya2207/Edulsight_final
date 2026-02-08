@@ -1,0 +1,31 @@
+{% extends "teacher_base.html" %}
+{% block content %}
+<div class="container">
+    <h2 class="text-2xl font-semibold mb-4">Weekly Tests for {{ student.first_name }} {{ student.last_name }}</h2>
+
+    <form method="POST" class="mb-4">
+        {% csrf_token %}
+        <label for="score">Enter Test Score:</label>
+        <input type="number" name="score" min="0" max="100" class="border px-2 py-1 rounded" required>
+        <button type="submit" class="bg-green-500 text-white px-3 py-1 rounded">Save</button>
+    </form>
+
+    <h3 class="text-lg font-semibold mb-2">Previous Test Scores</h3>
+    <table class="w-full bg-white shadow-md rounded">
+        <tr class="bg-gray-200">
+            <th class="p-2">Date</th>
+            <th class="p-2">Score</th>
+        </tr>
+        {% for test in test_records %}
+        <tr>
+            <td class="p-2">{{ test.test_date|date:"Y-m-d" }}</td>
+            <td class="p-2">{{ test.score }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="2" class="p-2 text-center">No test scores yet.</td></tr>
+        {% endfor %}
+    </table>
+
+    <a href="{% url 'teacher_dashboard' %}" class="inline-block mt-4 bg-gray-500 text-white px-3 py-1 rounded">⬅ Back</a>
+</div>
+{% endblock %}

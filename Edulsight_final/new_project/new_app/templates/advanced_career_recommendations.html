@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+{% block title %}Advanced Career Recommendations - EduInsight{% endblock %}
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-6 text-gray-800">AI-Powered Career Recommendations</h1>
+
+    <!-- Student Profile Summary -->
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+        <h2 class="text-2xl font-semibold mb-4 text-indigo-600">Your Profile Analysis</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="p-4 bg-gray-50 rounded-lg">
+                <div class="text-sm text-gray-600">Performance Grade</div>
+                <div class="text-2xl font-bold text-indigo-700">{{ student_profile.performance_grade|floatformat:1 }}%</div>
+            </div>
+
+            <div class="p-4 bg-gray-50 rounded-lg">
+                <div class="text-sm text-gray-600">Interest Areas</div>
+                <div class="mt-2">
+                    {% for interest in student_profile.interests %}
+                    <span class="inline-block bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm mr-2 mb-1">{{ interest }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="p-4 bg-gray-50 rounded-lg">
+                <div class="text-sm text-gray-600">Key Skills</div>
+                <div class="mt-2">
+                    {% for skill in student_profile.skills %}
+                    <span class="inline-block bg-green-100 text-green-800 px-2 py-1 rounded text-sm mr-2 mb-1">{{ skill }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Career Recommendations -->
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+        <h2 class="text-2xl font-semibold mb-4 text-gray-800">Recommended Career Paths</h2>
+
+        {% if recommendations.careers %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for career in recommendations.careers %}
+            <div class="bg-gradient-to-br from-indigo-50 to-blue-50 rounded-lg p-4 border border-indigo-200">
+                <h3 class="text-lg font-semibold text-indigo-800 mb-2">{{ career }}</h3>
+                <p class="text-gray-700 text-sm mb-3">Aligns with your skills and interests in technology and problem-solving.</p>
+                <a href="#" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium">Learn More →</a>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-gray-600">Complete the career questionnaire to get personalized recommendations.</p>
+        {% endif %}
+    </div>
+
+    <!-- Required Skills -->
+    {% if recommendations.skills %}
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+        <h2 class="text-2xl font-semibold mb-4 text-gray-800">Skills to Develop</h2>
+
+        <div class="flex flex-wrap gap-3">
+            {% for skill in recommendations.skills %}
+            <div class="bg-gradient-to-r from-purple-100 to-pink-100 px-4 py-2 rounded-full">
+                <span class="text-purple-800 font-medium">{{ skill }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Bridging Courses -->
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+        <h2 class="text-2xl font-semibold mb-4 text-gray-800">Recommended Courses</h2>
+
+        {% if bridging_courses %}
+        <div class="space-y-4">
+            {% for course in bridging_courses %}
+            <div class="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                        <h3 class="text-lg font-semibold text-gray-800">{{ course.course_name }}</h3>
+                        <div class="mt-2 flex items-center gap-4 text-sm">
+                            <span class="text-gray-600">
+                                <span class="font-medium">Level:</span> {{ course.level|title }}
+                            </span>
+                            <span class="text-gray-600">
+                                <span class="font-medium">Duration:</span> {{ course.duration }}
+                            </span>
+                            <span class="px-2 py-1 rounded text-xs
+                                {% if course.priority == 'High' %}bg-red-100 text-red-800
+                                {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                                {{ course.priority }} Priority
+                            </span>
+                        </div>
+                        <div class="mt-2">
+                            <span class="text-sm text-gray-600">Skills gained:</span>
+                            {% for skill in course.skills_gained %}
+                            <span class="inline-block bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs ml-2">{{ skill }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-gray-600">No specific courses recommended at this time. Focus on your current curriculum.</p>
+        {% endif %}
+    </div>
+
+    <!-- Industry Insights -->
+    {% if recommendations.trends %}
+    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg shadow-lg p-6 mb-6">
+        <h2 class="text-2xl font-semibold mb-4 text-gray-800">Industry Insights</h2>
+        <p class="text-gray-700">{{ recommendations.trends }}</p>
+        {% if recommendations.additional_insights %}
+        <p class="text-gray-600 mt-2 italic">{{ recommendations.additional_insights }}</p>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Recommendation History -->
+    {% if history %}
+    <div class="bg-white rounded-lg shadow-lg p-6">
+        <h2 class="text-2xl font-semibold mb-4 text-gray-800">Previous Recommendations</h2>
+
+        <div class="space-y-3">
+            {% for rec in history %}
+            <div class="border-b pb-3">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <span class="text-gray-800 font-medium">{{ rec.created_at|date:"Y-m-d H:i" }}</span>
+                        {% if rec.llm_used %}
+                        <span class="ml-2 px-2 py-1 bg-green-100 text-green-800 text-xs rounded">AI Enhanced</span>
+                        {% endif %}
+                    </div>
+                    <button class="text-indigo-600 hover:text-indigo-800 text-sm">View Details</button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,303 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Edulnsight{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Custom Styles for Edulsight */
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #fdfeff, #494949);
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        /* Navbar */
+        .navbar {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+
+        .nav-link {
+            position: relative;
+            transition: color 0.3s ease;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: #3b3effa2 !important;
+        }
+
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: #2356ff;
+        }
+
+        /* Hamburger Menu */
+        .hamburger .bar {
+            width: 24px;
+            height: 3px;
+            background: rgb(94, 89, 89);
+            margin: 5px 0;
+            transition: all 0.3s ease;
+        }
+
+        .hamburger.active .bar:nth-child(1) {
+            transform: translateY(8px) rotate(45deg);
+        }
+
+        .hamburger.active .bar:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active .bar:nth-child(3) {
+            transform: translateY(-8px) rotate(-45deg);
+        }
+
+        /* Mobile Menu */
+        .mobile-menu {
+            position: fixed;
+            top: 64px;
+            left: -100%;
+            width: 100%;
+            background: rgba(55, 65, 81, 0.95);
+            backdrop-filter: blur(5px);
+            transition: left 0.3s ease;
+        }
+
+        .mobile-menu.active {
+            left: 0;
+        }
+
+        /* Admin Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 64px;
+            left: 0;
+            width: 240px;
+            height: calc(100vh - 64px);
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease;
+            z-index: 900;
+        }
+
+        .sidebar.hidden {
+            transform: translateX(-240px);
+        }
+
+        .sidebar-link {
+            display: block;
+            padding: 12px 20px;
+            color: #1f2937;
+            transition: background 0.3s ease;
+        }
+
+        .sidebar-link:hover, .sidebar-link.active {
+            background: rgba(79, 70, 229, 0.1);
+            color: #4f46e5;
+        }
+
+        /* Content */
+        .content-wrapper {
+            margin-top: 64px;
+            margin-left: 0;
+            padding: 2rem;
+            transition: margin-left 0.3s ease;
+        }
+
+        .content-wrapper.with-sidebar {
+            margin-left: 240px;
+        }
+
+        /* Messages */
+        .messages .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        /* Footer */
+        footer {
+            background: #1f2937;
+            color: white;
+            padding: 2rem 0;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-240px);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .content-wrapper.with-sidebar {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+    <!-- Navbar -->
+    <header class="navbar flex items-center justify-between px-6 py-4">
+        <div class="flex items-center space-x-4">
+            {% if user.is_authenticated and user.student.is_admin %}
+                <button id="toggleSidebar" class="text-white focus:outline-none lg:hidden" aria-label="Toggle Sidebar">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                    </svg>
+                </button>
+            {% endif %}
+            <a href="{% url 'home' %}" class="text-2xl font-bold text-blue-800">Edulnsight</a>
+        </div>
+        <nav class="hidden lg:flex items-center space-x-6">
+            <a href="{% url 'home' %}" class="nav-link text-black-800 {% if request.path == '/' %}active{% endif %}">Home</a>
+            {% if user.is_authenticated %}
+                {% if user.student.is_admin %}
+                    <a href="{% url 'admin_dashboard' %}" class="nav-link text-black-800 {% if request.path == '/admin/dashboard/' %}active{% endif %}">Admin Dashboard</a>
+                {% else %}
+                    <a href="{% url 'student_dashboard' %}" class="nav-link text-black-800 {% if request.path == '/dashboard/' %}active{% endif %}">Dashboard</a>
+                    <a href="{% url 'career_questionnaire' %}" class="nav-link text-black-800 
+                    
+                    {% if request.path == '/questionnaire/' %}active{% endif %}">Questionnaire</a>
+                    <a href="{% url 'career_results' %}" class="nav-link text-black-800 {% if request.path == '/results/' %}active{% endif %}">Results</a>
+                {% endif %}
+                <a href="{% url 'profile' %}" class="nav-link text-black-800 {% if request.path == '/profile/' %}active{% endif %}">Profile</a>
+                <a href="{% url 'logout' %}" class="nav-link text-black-800">Logout</a>
+            {% else %}
+                <a href="{% url 'register' %}" class="nav-link text-black {% if request.path == '/register/' %}active{% endif %}">Register</a>
+                <a href="{% url 'login' %}" class="nav-link text-black {% if request.path == '/login/' %}active{% endif %}">Login</a>
+            {% endif %}
+        </nav>
+        <div class="hamburger lg:hidden flex flex-col cursor-pointer" aria-label="Toggle Navigation">
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+        </div>
+    </header>
+
+    <!-- Mobile Menu -->
+    <nav class="mobile-menu lg:hidden bg-gray-700">
+        <div class="flex flex-col p-4 space-y-4">
+            <a href="{% url 'home' %}" class="nav-link text-white {% if request.path == '/' %}active{% endif %}">Home</a>
+            {% if user.is_authenticated %}
+                {% if user.student.is_admin %}
+                    <a href="{% url 'admin_dashboard' %}" class="nav-link text-white {% if request.path == '/admin/dashboard/' %}active{% endif %}">Admin Dashboard</a>
+                {% else %}
+                    <a href="{% url 'student_dashboard' %}" class="nav-link text-white {% if request.path == '/dashboard/' %}active{% endif %}">Dashboard</a>
+                    <a href="{% url 'career_questionnaire' %}" class="nav-link text-white {% if request.path == '/questionnaire/' %}active{% endif %}">Questionnaire</a>
+                    <a href="{% url 'career_results' %}" class="nav-link text-white {% if request.path == '/results/' %}active{% endif %}">Results</a>
+                {% endif %}
+                <a href="{% url 'profile' %}" class="nav-link text-white {% if request.path == '/profile/' %}active{% endif %}">Profile</a>
+                <a href="{% url 'logout' %}" class="nav-link text-white">Logout</a>
+            {% else %}
+                <a href="{% url 'register' %}" class="nav-link text-white {% if request.path == '/register/' %}active{% endif %}">Register</a>
+                <a href="{% url 'login' %}" class="nav-link text-white {% if request.path == '/login/' %}active{% endif %}">Login</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="content-wrapper {% if user.is_authenticated and user.student.is_admin %}with-sidebar{% endif %} flex-grow">
+        <!-- Messages -->
+        {% if messages %}
+            <div class="container mx-auto px-4">
+                {% for message in messages %}
+                    <div class="alert {% if message.tags == 'success' %}bg-green-100 text-green-800{% elif message.tags == 'error' %}bg-red-100 text-red-800{% else %}bg-blue-100 text-blue-800{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Content Block -->
+        <div class="container mx-auto px-4 py-8">
+            {% block content %}
+            {% endblock %}
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white">
+        <div class="container mx-auto px-4 py-6 text-center">
+            <p>&copy; 2025 Edulsight. All rights reserved.</p>
+            <p class="mt-2">
+                <a href="#" class="text-indigo-400 hover:text-indigo-300">Privacy Policy</a> | 
+                <a href="#" class="text-indigo-400 hover:text-indigo-300">Terms of Service</a> | 
+                Contact: <a href="mailto:support@edulsight.com" class="text-indigo-400 hover:text-indigo-300">support@edulsight.com</a>
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Hamburger Menu Toggle
+        const hamburger = document.querySelector('.hamburger');
+        const mobileMenu = document.querySelector('.mobile-menu');
+        const sidebar = document.querySelector('#sidebar');
+        const toggleSidebar = document.querySelector('#toggleSidebar');
+
+        hamburger.addEventListener('click', () => {
+            hamburger.classList.toggle('active');
+            mobileMenu.classList.toggle('active');
+            hamburger.setAttribute('aria-expanded', hamburger.classList.contains('active'));
+        });
+
+        if (toggleSidebar) {
+            toggleSidebar.addEventListener('click', () => {
+                sidebar.classList.toggle('hidden');
+                sidebar.classList.toggle('active');
+                document.querySelector('.content-wrapper').classList.toggle('with-sidebar');
+                toggleSidebar.setAttribute('aria-expanded', sidebar.classList.contains('active'));
+            });
+        }
+
+        // Close Mobile Menu on Link Click
+        document.querySelectorAll('.mobile-menu .nav-link').forEach(link => {
+            link.addEventListener('click', () => {
+                hamburger.classList.remove('active');
+                mobileMenu.classList.remove('active');
+                hamburger.setAttribute('aria-expanded', false);
+            });
+        });
+
+        // Accessibility: Keyboard Support
+        hamburger.setAttribute('aria-label', 'Toggle navigation menu');
+        hamburger.setAttribute('role', 'button');
+        hamburger.setAttribute('tabindex', '0');
+        hamburger.addEventListener('keydown', e => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                hamburger.click();
+            }
+        });
+
+        if (toggleSidebar) {
+            toggleSidebar.setAttribute('aria-label', 'Toggle admin sidebar');
+            toggleSidebar.setAttribute('role', 'button');
+            toggleSidebar.setAttribute('tabindex', '0');
+            toggleSidebar.addEventListener('keydown', e => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    toggleSidebar.click();
+                }
+            });
+        }
+    </script>
+</body>
+</html>

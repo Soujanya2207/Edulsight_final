@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Career Results - Edulnsight{% endblock %}
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h2 class="text-3xl font-bold text-gray-900 text-center mb-8 animate-slide-up">Your Career Recommendations</h2>
+    
+    {% if message %}
+        <div class="bg-white p-6 rounded-xl shadow-lg text-center max-w-md mx-auto animate-fade-in">
+            <p class="text-lg text-gray-600 mb-4">{{ message }}</p>
+            <form method="post" action="{% url 'career_results' %}">
+                {% csrf_token %}
+                <input type="hidden" name="retake" value="1">
+                <button type="submit" class="inline-block bg-indigo-600 text-white px-6 py-2 rounded-full hover:bg-indigo-700 transition duration-300">Retake Questionnaire</button>
+            </form>
+        </div>
+    {% endif %}
+    
+    {% if careers %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for career in careers %}
+                <div class="bg-white bg-opacity-90 backdrop-blur-md p-6 rounded-xl shadow-xl hover:shadow-2xl transition duration-300 animate-scale-in">
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">{{ career.name }}</h3>
+                    <p class="text-gray-600 mb-4">{{ career.description }}</p>
+                    <span class="inline-block bg-indigo-100 text-indigo-800 text-sm px-3 py-1 rounded-full">{{ career.category }}</span>
+                    <a href="{% url 'submit_feedback' career.id %}" class="inline-block text-indigo-600 hover:underline mt-2">Provide Feedback</a>
+                </div>
+            {% endfor %}
+        </div>
+        <div class="text-center mt-8">
+            <form method="post" action="{% url 'career_results' %}">
+                {% csrf_token %}
+                <input type="hidden" name="retake" value="1">
+                <button type="submit" class="inline-block bg-indigo-600 text-white px-6 py-2 rounded-full hover:bg-indigo-700 transition duration-300">Retake Questionnaire</button>
+            </form>
+        </div>
+    {% else %}
+        <div class="bg-white p-6 rounded-xl shadow-lg text-center max-w-md mx-auto animate-fade-in">
+            <p class="text-lg text-gray-600 mb-4">No careers available. Please contact an administrator or retake the questionnaire.</p>
+            <form method="post" action="{% url 'career_results' %}">
+                {% csrf_token %}
+                <input type="hidden" name="retake" value="1">
+                <button type="submit" class="inline-block bg-indigo-600 text-white px-6 py-2 rounded-full hover:bg-indigo-700 transition duration-300">Retake Questionnaire</button>
+            </form>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+    .animate-scale-in { animation: scaleIn 0.5s ease-out forwards; }
+    .animate-slide-up { animation: slideUp 0.8s ease-out forwards; }
+    .animate-fade-in { animation: fadeIn 1s ease-out forwards; }
+    @keyframes scaleIn {
+        from { transform: scale(0.95); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+    }
+    @keyframes slideUp {
+        from { transform: translateY(20px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    @media (max-width: 640px) {
+        .grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}

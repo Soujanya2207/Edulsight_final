@@ -1,0 +1,72 @@
+{% extends 'admin1/base1.html' %}
+{% block title %}Manage Careers - EduInsight Admin{% endblock %}
+
+{% block content %}
+<div class="w-100">
+    <h2 class="mb-4">Manage Careers</h2>
+
+    <!-- Add Career Form -->
+    <div class="card mb-4">
+        <h5 class="card-header">Add New Career</h5>
+        <form method="post" class="form-container p-3">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="add">
+            <div class="form-group mb-3">
+                <label for="name">Career Name</label>
+                <input type="text" name="name" id="name" class="form-control" required placeholder="e.g., Software Engineer">
+            </div>
+            <div class="form-group mb-3">
+                <label for="description">Description</label>
+                <textarea name="description" id="description" rows="4" class="form-control" required placeholder="Describe the career"></textarea>
+            </div>
+            <div class="form-group mb-3">
+                <label for="category">Category</label>
+                <select name="category" id="category" class="form-select" required>
+                    <option value="Tech">Tech</option>
+                    <option value="Creative">Creative</option>
+                    <option value="Analytical">Analytical</option>
+                    <option value="Collaborative">Collaborative</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Add Career</button>
+        </form>
+    </div>
+
+    <!-- Career List -->
+    <div class="card">
+        <h5 class="card-header">Existing Careers</h5>
+        <div class="card-body">
+            {% if careers %}
+                {% for career in careers %}
+                    <form method="post" class="career-form mb-3 p-3 rounded">
+                        {% csrf_token %}
+                        <input type="hidden" name="career_id" value="{{ career.id }}">
+                        <div class="row g-3 align-items-center">
+                            <div class="col-md-3">
+                                <input type="text" name="name" value="{{ career.name }}" class="form-control" required>
+                            </div>
+                            <div class="col-md-4">
+                                <textarea name="description" rows="2" class="form-control" required>{{ career.description }}</textarea>
+                            </div>
+                            <div class="col-md-3">
+                                <select name="category" class="form-select" required>
+                                    <option value="Tech" {% if career.category == 'Tech' %}selected{% endif %}>Tech</option>
+                                    <option value="Creative" {% if career.category == 'Creative' %}selected{% endif %}>Creative</option>
+                                    <option value="Analytical" {% if career.category == 'Analytical' %}selected{% endif %}>Analytical</option>
+                                    <option value="Collaborative" {% if career.category == 'Collaborative' %}selected{% endif %}>Collaborative</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2 d-flex gap-2">
+                                <button type="submit" name="action" value="edit" class="btn btn-success w-100">Update</button>
+                                <button type="submit" name="action" value="delete" class="btn btn-danger w-100">Delete</button>
+                            </div>
+                        </div>
+                    </form>
+                {% endfor %}
+            {% else %}
+                <p class="text-muted">No careers available. Add some above!</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

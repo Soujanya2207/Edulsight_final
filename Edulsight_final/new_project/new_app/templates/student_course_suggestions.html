@@ -1,0 +1,193 @@
+{% extends 'base.html' %}
+{% block title %}My Course Suggestions - EduInsight{% endblock %}
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-6 text-gray-800">Course Suggestions Based on Your Performance</h1>
+
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="text-sm text-gray-600">Total Suggestions</div>
+            <div class="text-3xl font-bold text-indigo-600">{{ total_suggestions }}</div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="text-sm text-gray-600">Accepted Courses</div>
+            <div class="text-3xl font-bold text-green-600">{{ accepted_count }}</div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="text-sm text-gray-600">Pending Review</div>
+            <div class="text-3xl font-bold text-orange-600">
+                {{ total_suggestions|add:"-"|add:accepted_count }}
+            </div>
+        </div>
+    </div>
+
+    <!-- Critical Priority Suggestions -->
+    {% if critical_suggestions %}
+    <div class="bg-red-50 border-l-4 border-red-500 rounded-lg p-6 mb-8">
+        <h2 class="text-xl font-semibold text-red-800 mb-4">🚨 Critical - Immediate Attention Required</h2>
+        <div class="space-y-4">
+            {% for suggestion in critical_suggestions %}
+            <div class="bg-white rounded-lg p-4 border border-red-200">
+                <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                        <h3 class="text-lg font-semibold text-gray-800">{{ suggestion.course_name }}</h3>
+                        <p class="text-gray-600 mt-2">{{ suggestion.course_description }}</p>
+                        <div class="mt-3 text-sm">
+                            <span class="font-medium text-gray-700">Reason:</span>
+                            <span class="text-red-600">{{ suggestion.reason }}</span>
+                        </div>
+                        <div class="mt-2 flex gap-4 text-sm">
+                            <span><strong>Subject:</strong> {{ suggestion.subject_area }}</span>
+                            <span><strong>Target:</strong> {{ suggestion.target_improvement }}</span>
+                            {% if suggestion.based_on_grade %}
+                            <span><strong>Based on Grade:</strong> {{ suggestion.based_on_grade|floatformat:1 }}%</span>
+                            {% endif %}
+                            {% if suggestion.based_on_attendance %}
+                            <span><strong>Attendance:</strong> {{ suggestion.based_on_attendance|floatformat:1 }}%</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {% if suggestion.is_accepted == None %}
+                    <div class="ml-4">
+                        <form method="POST" class="inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="suggestion_id" value="{{ suggestion.id }}">
+                            <input type="hidden" name="action" value="accept">
+                            <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+                                Accept
+                            </button>
+                        </form>
+                    </div>
+                    {% elif suggestion.is_accepted %}
+                    <span class="px-3 py-1 bg-green-100 text-green-800 rounded">✓ Accepted</span>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- High Priority Suggestions -->
+    {% if high_suggestions %}
+    <div class="bg-orange-50 border-l-4 border-orange-500 rounded-lg p-6 mb-8">
+        <h2 class="text-xl font-semibold text-orange-800 mb-4">⚠️ High Priority - Important for Improvement</h2>
+        <div class="space-y-4">
+            {% for suggestion in high_suggestions %}
+            <div class="bg-white rounded-lg p-4 border border-orange-200">
+                <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                        <h3 class="text-lg font-semibold text-gray-800">{{ suggestion.course_name }}</h3>
+                        <p class="text-gray-600 mt-2">{{ suggestion.course_description }}</p>
+                        <div class="mt-3 text-sm">
+                            <span class="font-medium text-gray-700">Reason:</span>
+                            <span class="text-orange-600">{{ suggestion.reason }}</span>
+                        </div>
+                    </div>
+
+                    {% if suggestion.is_accepted == None %}
+                    <div class="ml-4 space-x-2">
+                        <form method="POST" class="inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="suggestion_id" value="{{ suggestion.id }}">
+                            <input type="hidden" name="action" value="accept">
+                            <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+                                Accept
+                            </button>
+                        </form>
+                        <form method="POST" class="inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="suggestion_id" value="{{ suggestion.id }}">
+                            <input type="hidden" name="action" value="decline">
+                            <button type="submit" class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500">
+                                Decline
+                            </button>
+                        </form>
+                    </div>
+                    {% elif suggestion.is_accepted %}
+                    <span class="px-3 py-1 bg-green-100 text-green-800 rounded">✓ Accepted</span>
+                    {% else %}
+                    <span class="px-3 py-1 bg-gray-100 text-gray-600 rounded">Declined</span>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Medium Priority Suggestions -->
+    {% if medium_suggestions %}
+    <div class="bg-yellow-50 border-l-4 border-yellow-500 rounded-lg p-6 mb-8">
+        <h2 class="text-xl font-semibold text-yellow-800 mb-4">💡 Recommended Courses</h2>
+        <div class="space-y-4">
+            {% for suggestion in medium_suggestions %}
+            <div class="bg-white rounded-lg p-4 border border-yellow-200">
+                <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                        <h3 class="text-lg font-semibold text-gray-800">{{ suggestion.course_name }}</h3>
+                        <p class="text-gray-600 mt-2">{{ suggestion.course_description }}</p>
+                        <div class="mt-3 text-sm text-gray-600">
+                            <span class="font-medium">Reason:</span> {{ suggestion.reason }}
+                        </div>
+                    </div>
+
+                    {% if suggestion.is_accepted == None %}
+                    <div class="ml-4 space-x-2">
+                        <form method="POST" class="inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="suggestion_id" value="{{ suggestion.id }}">
+                            <input type="hidden" name="action" value="accept">
+                            <input type="text" name="feedback" placeholder="Optional feedback" class="px-2 py-1 border rounded mr-2">
+                            <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">
+                                Accept
+                            </button>
+                        </form>
+                    </div>
+                    {% elif suggestion.is_accepted %}
+                    <span class="px-3 py-1 bg-green-100 text-green-800 rounded">✓ Accepted</span>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Low Priority/Optional Suggestions -->
+    {% if low_suggestions %}
+    <div class="bg-blue-50 border-l-4 border-blue-500 rounded-lg p-6 mb-8">
+        <h2 class="text-xl font-semibold text-blue-800 mb-4">✨ Optional Enhancement Courses</h2>
+        <div class="space-y-4">
+            {% for suggestion in low_suggestions %}
+            <div class="bg-white rounded-lg p-4 border border-blue-200">
+                <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                        <h3 class="text-lg font-semibold text-gray-800">{{ suggestion.course_name }}</h3>
+                        <p class="text-gray-600 mt-2">{{ suggestion.course_description }}</p>
+                    </div>
+                    {% if suggestion.is_accepted %}
+                    <span class="px-3 py-1 bg-green-100 text-green-800 rounded">✓ Accepted</span>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Navigation Links -->
+    <div class="flex gap-4 mt-8">
+        <a href="{% url 'student_dashboard' %}" class="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700">
+            Back to Dashboard
+        </a>
+        <a href="{% url 'student_grades_view' %}" class="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700">
+            View My Grades
+        </a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,190 @@
+{% extends 'base.html' %}
+{% block title %}My Grades & Attendance - EduInsight{% endblock %}
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-6 text-gray-800">My Academic Performance</h1>
+
+    <!-- Performance Overview -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="text-sm text-gray-600">Overall Average</div>
+            <div class="text-3xl font-bold text-indigo-600">
+                {% if grades %}
+                    {{ grades.first.percentage|floatformat:1 }}%
+                {% else %}
+                    N/A
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="text-sm text-gray-600">Attendance Rate</div>
+            <div class="text-3xl font-bold text-green-600">{{ attendance_rate|floatformat:0 }}%</div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="text-sm text-gray-600">Total Grades</div>
+            <div class="text-3xl font-bold text-purple-600">{{ grades.count }}</div>
+        </div>
+    </div>
+
+    <!-- Grades by Subject -->
+    <div class="bg-white rounded-lg shadow p-6 mb-8">
+        <h2 class="text-xl font-semibold mb-4 text-gray-800">Performance by Subject</h2>
+
+        {% if grades_by_subject %}
+        <div class="space-y-4">
+            {% for subject, data in grades_by_subject.items %}
+            <div class="border rounded-lg p-4">
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="text-lg font-semibold text-gray-700">{{ subject }}</h3>
+                    <span class="text-2xl font-bold
+                        {% if data.average >= 80 %}text-green-600
+                        {% elif data.average >= 60 %}text-yellow-600
+                        {% else %}text-red-600{% endif %}">
+                        {{ data.average|floatformat:1 }}%
+                    </span>
+                </div>
+
+                <!-- Progress bar -->
+                <div class="w-full bg-gray-200 rounded-full h-2 mb-3">
+                    <div class="h-2 rounded-full
+                        {% if data.average >= 80 %}bg-green-600
+                        {% elif data.average >= 60 %}bg-yellow-600
+                        {% else %}bg-red-600{% endif %}"
+                        style="width: {{ data.average }}%"></div>
+                </div>
+
+                <!-- Individual grades -->
+                <div class="space-y-2">
+                    {% for grade in data.grades|slice:":3" %}
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-600">
+                            {{ grade.get_grade_type_display }} - {{ grade.date|date:"M d" }}
+                        </span>
+                        <span class="font-medium">
+                            {{ grade.score }}/{{ grade.max_score }} ({{ grade.percentage|floatformat:1 }}%)
+                        </span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-gray-600">No grades available yet.</p>
+        {% endif %}
+    </div>
+
+    <!-- Recent Grades Table -->
+    <div class="bg-white rounded-lg shadow p-6 mb-8">
+        <h2 class="text-xl font-semibold mb-4 text-gray-800">Recent Grades</h2>
+
+        {% if grades %}
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead>
+                    <tr class="bg-gray-100">
+                        <th class="px-4 py-2 text-left">Date</th>
+                        <th class="px-4 py-2 text-left">Subject</th>
+                        <th class="px-4 py-2 text-left">Type</th>
+                        <th class="px-4 py-2 text-left">Score</th>
+                        <th class="px-4 py-2 text-left">Grade</th>
+                        <th class="px-4 py-2 text-left">Teacher Comments</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for grade in grades|slice:":10" %}
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="px-4 py-2">{{ grade.date|date:"Y-m-d" }}</td>
+                        <td class="px-4 py-2">{{ grade.subject }}</td>
+                        <td class="px-4 py-2">
+                            <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded text-sm">
+                                {{ grade.get_grade_type_display }}
+                            </span>
+                        </td>
+                        <td class="px-4 py-2">{{ grade.score }}/{{ grade.max_score }}</td>
+                        <td class="px-4 py-2">
+                            <span class="font-semibold
+                                {% if grade.percentage >= 90 %}text-green-600
+                                {% elif grade.percentage >= 80 %}text-blue-600
+                                {% elif grade.percentage >= 70 %}text-yellow-600
+                                {% elif grade.percentage >= 60 %}text-orange-600
+                                {% else %}text-red-600{% endif %}">
+                                {{ grade.percentage|floatformat:1 }}%
+                            </span>
+                        </td>
+                        <td class="px-4 py-2 text-sm">{{ grade.comments|default:"-" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-gray-600">No grades recorded yet.</p>
+        {% endif %}
+    </div>
+
+    <!-- Attendance Records -->
+    <div class="bg-white rounded-lg shadow p-6 mb-8">
+        <h2 class="text-xl font-semibold mb-4 text-gray-800">Recent Attendance (Last 30 Days)</h2>
+
+        {% if attendance %}
+        <div class="grid grid-cols-7 gap-2">
+            {% for record in attendance %}
+            <div class="text-center">
+                <div class="text-xs text-gray-600 mb-1">{{ record.date|date:"D" }}</div>
+                <div class="w-12 h-12 rounded-full flex items-center justify-center mx-auto
+                    {% if record.status == 'Present' %}bg-green-100 text-green-600
+                    {% else %}bg-red-100 text-red-600{% endif %}">
+                    {% if record.status == 'Present' %}✓{% else %}✗{% endif %}
+                </div>
+                <div class="text-xs text-gray-500 mt-1">{{ record.date|date:"m/d" }}</div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="mt-4 p-4 bg-gray-50 rounded">
+            <div class="flex justify-between">
+                <span class="text-gray-600">Attendance Rate:</span>
+                <span class="font-semibold text-lg
+                    {% if attendance_rate >= 90 %}text-green-600
+                    {% elif attendance_rate >= 75 %}text-yellow-600
+                    {% else %}text-red-600{% endif %}">
+                    {{ attendance_rate|floatformat:0 }}%
+                </span>
+            </div>
+        </div>
+        {% else %}
+        <p class="text-gray-600">No attendance records available.</p>
+        {% endif %}
+    </div>
+
+    <!-- Teacher Feedback -->
+    {% if feedback %}
+    <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="text-xl font-semibold mb-4 text-gray-800">Teacher Feedback</h2>
+
+        <div class="space-y-4">
+            {% for fb in feedback %}
+            <div class="border-l-4 border-indigo-500 pl-4 py-2">
+                <div class="flex justify-between items-start mb-2">
+                    <div>
+                        <span class="font-semibold">{{ fb.teacher.first_name }} {{ fb.teacher.last_name }}</span>
+                        <span class="ml-2 px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">
+                            {{ fb.get_feedback_type_display }}
+                        </span>
+                    </div>
+                    <span class="text-sm text-gray-500">{{ fb.created_at|date:"Y-m-d" }}</span>
+                </div>
+                <p class="text-gray-700">{{ fb.comment }}</p>
+                {% if fb.subject %}
+                <span class="text-sm text-gray-500">Subject: {{ fb.subject }}</span>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

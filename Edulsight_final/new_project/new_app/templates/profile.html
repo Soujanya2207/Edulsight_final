@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Profile - Edulnsight{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Page Header -->
+    <h2 class="text-3xl font-bold text-gray-900 text-center mb-8 animate-slide-up">Your Profile</h2>
+
+    <!-- Messages -->
+    {% if messages %}
+        <div class="max-w-md mx-auto mb-6">
+            {% for message in messages %}
+                <div class="bg-{{ message.tags }}-100 border border-{{ message.tags }}-400 text-{{ message.tags }}-700 px-4 py-3 rounded relative animate-fade-in" role="alert">
+                    <span class="block sm:inline">{{ message }}</span>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Profile Form -->
+    <div class="bg-white p-6 rounded-xl shadow-xl max-w-md mx-auto animate-scale-in">
+        <form method="post" action="{% url 'profile' %}">
+            {% csrf_token %}
+            <div class="mb-4">
+                <label for="first_name" class="block text-gray-700 font-semibold mb-2">First Name</label>
+                <input type="text" id="first_name" name="first_name" value="{{ student.first_name }}" required
+                       class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            </div>
+            <div class="mb-4">
+                <label for="last_name" class="block text-gray-700 font-semibold mb-2">Last Name</label>
+                <input type="text" id="last_name" name="last_name" value="{{ student.last_name }}" required
+                       class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            </div>
+            <div class="mb-4">
+                <label for="email" class="block text-gray-700 font-semibold mb-2">Email</label>
+                <input type="email" id="email" name="email" value="{{ student.email }}" required
+                       class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            </div>
+            <div class="text-center">
+                <button type="submit" class="bg-indigo-600 text-white px-6 py-2 rounded-full hover:bg-indigo-700 transition duration-300">
+                    Update Profile
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Navigation Links -->
+    <div class="text-center mt-8">
+        <a href="{% url 'student_dashboard' %}" class="inline-block text-indigo-600 hover:underline mr-4">Back to Dashboard</a>
+        <a href="{% url 'career_questionnaire' %}" class="inline-block text-indigo-600 hover:underline">Take Questionnaire</a>
+    </div>
+</div>
+
+<style>
+    .animate-scale-in { animation: scaleIn 0.5s ease-out forwards; }
+    .animate-slide-up { animation: slideUp 0.8s ease-out forwards; }
+    .animate-fade-in { animation: fadeIn 1s ease-out forwards; }
+    @keyframes scaleIn {
+        from { transform: scale(0.95); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+    }
+    @keyframes slideUp {
+        from { transform: translateY(20px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+</style>
+{% endblock %}
